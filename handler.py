@@ -23,7 +23,6 @@ def translate(event, context):
     comprehend = boto3.client('comprehend')
 
     # Determine the source and target languages based on the detected language and the user's selected language
-    print(comprehend.detect_dominant_language(Text=message))
     print(comprehend.detect_dominant_language(Text=message)['Languages'])
     try:
         source_language = comprehend.detect_dominant_language(Text=message)['Languages'][0]['LanguageCode']
