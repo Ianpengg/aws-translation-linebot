@@ -6,8 +6,8 @@ provider:
   region: ap-northeast-1 #
   runtime: python3.8
   environment:
-    LINE_CHANNEL_SECRET: dc7d0174e22f3808e7165cb3e03ac8c1
-    LINE_CHANNEL_ACCESS_TOKEN: PHEspgz0oRK4l9g3vwzNATNagjk39eiwOOiSIcwWmfWI4psFpDskQPDK2DHv2B2L9Fc4Qro1Sil9VcwsDLJZUOXVcryNX9Sm8+k3kBRYhB1rjfUX8F8ExaWp/vYMvapAxVqww2dvvzdxTJdByrGITAdB04t89/1O/w1cDnyilFU=
+    LINE_CHANNEL_SECRET: #Enter the secret
+    LINE_CHANNEL_ACCESS_TOKEN: #Enter the access token
   iamRoleStatements:
     - Effect: Allow
       Action:
