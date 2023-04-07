@@ -1,46 +1,67 @@
 import os
 import json
+import openai
 import boto3
-from linebot import LineBotApi, WebhookParser
-from linebot.models import MessageEvent, TextMessage, TextSendMessage
 
-# Initialize Line Bot SDK
+from linebot import (
+    LineBotApi, WebhookHandler
+)
+from linebot.models import (
+    MessageEvent, TextMessage, TextSendMessage,
+)
+'''
+Setting LINE
+'''
 line_bot_api = LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
 
-def translate(event, context):
+'''
+Setting OpenAI
+'''
+openai.api_key = os.environ['OPENAI_API_KEY']
 
+
+
+def webhook(event, context):
+    # Parse msg from LINE conversation request
+    print('event: ', event)
     msg = json.loads(event['body'])
+
+    # Parse texts we type from msg
     user_id = msg['events'][0]['source']['userId']
     user_input = msg['events'][0]['message']['text']
     print('user_id: ', user_id)
     print('user_input:', user_input)
-    # Process each event in the webhook payload
-    
-    message = user_input
-    print("msg", message)
-    # Use AWS Translate and Comprehend to translate and detect the language of the message
-    translate = boto3.client('translate')
-    comprehend = boto3.client('comprehend')
 
-    # Determine the source and target languages based on the detected language and the user's selected language
-    print(comprehend.detect_dominant_language(Text=message)['Languages'])
+    comprehend = boto3.client('comprehend')
     try:
-        source_language = comprehend.detect_dominant_language(Text=message)['Languages'][0]['LanguageCode']
+        source_language = comprehend.detect_dominant_language(Text=user_input)['Languages'][0]['LanguageCode']
     except IndexError:
         source_language = 'zh-TW'
-    target_language = 'en' if source_language == 'zh-TW' or source_language == 'zh' else 'zh-TW'
+    target_language = 'vi' if source_language == 'zh-TW' or source_language == 'zh' else 'zh-TW'
 
-    # Perform the translation using AWS Translate
-    translated_message = translate.translate_text(Text=message, SourceLanguageCode=source_language, TargetLanguageCode=target_language)['TranslatedText']
+    # check if the conversation data exists
+ 
+    prompt = []
+    if target_language == 'vi':
+        prompt.append({"role": "user", "content": "translate the following text to Vietnamese"})
+    elif target_language == 'zh-TW':
+        prompt.append({"role": "user", "content": "translate the following text to 繁體中文:"})
 
-    # Construct the response message
-    response_message = TextSendMessage(text=translated_message)
+    prompt.append({"role": "user", "content": user_input})
+    print('prompt: ', prompt)
+    # GPT3
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=prompt
+    )
+    gpt3_response = response.choices[0]['message']['content']
+    print('gpt3_response: ', gpt3_response)
 
-    # Send the translated message back to the user
+    # handle webhook body
     try:
         line_bot_api.reply_message(
                 msg['events'][0]['replyToken'],
-                response_message
+                TextSendMessage(text=gpt3_response)
         )
     except:
         return {
@@ -51,4 +72,3 @@ def translate(event, context):
         "statusCode": 200,
         "body": json.dumps({"message": 'ok'})
     }
-

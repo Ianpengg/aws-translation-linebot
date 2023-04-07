@@ -6,8 +6,9 @@ provider:
   region: ap-northeast-1 #
   runtime: python3.8
   environment:
-    LINE_CHANNEL_SECRET: #Enter the secret
-    LINE_CHANNEL_ACCESS_TOKEN: #Enter the access token
+    LINE_CHANNEL_SECRET: 64acf7907cb6139871e4886cf5b2b904
+    LINE_CHANNEL_ACCESS_TOKEN: 3D6CEKbI858siRSxwzoI3Cb9vFzeb9AJBGPHxRDIjvD9v1XxHsv/dY997OQvPyMzHEcqFrLjf6jIIOlPsFfahQKvxi9fVjXwmIve7r7MSM28jgqw6WaFT1fdZKCvjG+xhUZFN2hLub733xXrXYJxOAdB04t89/1O/w1cDnyilFU=
+    OPENAI_API_KEY: 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
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -19,7 +20,7 @@ provider:
       Resource: '*'
 functions:
   bot:
-    handler: handler.translate
+    handler: handler.webhook
     events:
       - http:
           path: /webhook
